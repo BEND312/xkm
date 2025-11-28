@@ -1,0 +1,139 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+configurations.all {
+    exclude group: 'org.jetbrains.kotlinx', module: 'kotlinx-coroutines-debug'
+    resolutionStrategy {
+        eachDependency { details ->
+            if (details.requested.group == 'androidx.browser') {
+                details.useVersion '1.8.0'
+            }
+            if (details.requested.group == 'androidx.activity') {
+                details.useVersion '1.9.3'
+            }
+            if (details.requested.group == 'androidx.core') {
+                if (details.requested.name == 'core' || details.requested.name == 'core-ktx') {
+                    details.useVersion '1.13.1'
+                }
+            }
+        }
+    }
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def props = new Properties()
+props.load(new FileInputStream(rootProject.file("local.properties")))
+
+android {
+    namespace = "store.swust.swustmeow"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.8"
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "store.swust.swustmeow"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.versionCodeOverride = variant.versionCode
+        }
+    }
+
+    packagingOptions {
+        resources {
+            excludes += [
+                'DebugProbesKt.bin',
+                'META-INF/DebugProbesKt.bin',
+                'META-INF/com.android.tools/**',
+                'META-INF/proguard/**'
+            ]
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+project.afterEvaluate {
+    tasks.all { task ->
+        if (task.name.contains("mergeReleaseAssets") || 
+            task.name.contains("mergeDebugAssets") ||
+            task.name.contains("processReleaseResources") ||
+            task.name.contains("processDebugResources")) {
+            task.doLast {
+                fileTree(buildDir).matching {
+                    include "**/flutter_assets/NOTICES*"
+                    include "**/NOTICES"
+                    include "**/NOTICES.Z"
+                }.each { file ->
+                    println "Deleting: ${file}"
+                    file.delete()
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    implementation 'androidx.window:window:1.0.0'
+    implementation 'androidx.window:window-java:1.0.0'
+    implementation 'androidx.work:work-runtime:2.8.1'
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
+    implementation 'androidx.glance:glance-appwidget:1.1.1'
+    implementation 'com.google.code.gson:gson:2.12.1'
+}

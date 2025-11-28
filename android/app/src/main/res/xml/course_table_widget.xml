@@ -1,0 +1,12 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/course_table_widget_desc"
+    android:initialLayout="@layout/course_table_widget_loading_layout"
+    android:maxWidth="240dp"
+    android:maxHeight="400dp"
+    android:minWidth="240dp"
+    android:minHeight="240dp"
+    android:resizeMode="vertical"
+    android:updatePeriodMillis="1000"
+    android:widgetCategory="home_screen"
+    android:previewImage="@drawable/course_table_widget_preview">
+</appwidget-provider>

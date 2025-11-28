@@ -1,0 +1,11 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/single_course_mini_widget_desc"
+    android:initialLayout="@layout/single_course_mini_widget_loading_layout"
+    android:maxWidth="120dp"
+    android:maxHeight="120dp"
+    android:minWidth="120dp"
+    android:minHeight="120dp"
+    android:updatePeriodMillis="1000"
+    android:widgetCategory="home_screen"
+    android:previewImage="@drawable/single_course_mini_widget_preview">
+</appwidget-provider>
